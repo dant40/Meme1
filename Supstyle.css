@@ -1,0 +1,237 @@
+/*I pledge my honor that I have abided by the Stevens Honor System - D.Thek*/
+html{
+     box-shadow: 1px 15px 15px rgba(0, 0, 0, 0.2);
+    
+}
+body{
+    background-color:#79a3f7;
+    
+}
+
+#meme{
+    text-align: center;
+    font-style: oblique;
+    font-family: "comic sans",serif,cursive;
+    font-weight: 175;
+}
+
+ .email:hover{
+        color:blue;
+    }
+ .email{
+        font-weight: bolder;
+     word-wrap:break-word;
+    }
+
+/*animation controllers*/
+@-webkit-keyframes color-change {
+    0% { color: green; }
+    25% {color: lightblue;}
+    50% { color: blue; }
+    75% {color: lightblue;}
+    100% { color: green; }
+}
+@-moz-keyframes color-change {
+ 0% { color: green; }
+    25% {color: lightblue}
+    50% { color: blue; }
+    75% {color: lightblue;}
+    100% { color: green; }
+}
+@-ms-keyframes color-change {
+   0% { color: green; }
+    25% {color: lightblue}
+    50% { color: blue; }
+    75% {color: lightblue;}
+    100% { color: green; }
+}
+@-o-keyframes color-change {
+  0% { color: green; }
+    25% {color: lightblue}
+    50% { color: blue; }
+    75% {color: lightblue;}
+    100% { color: green; }
+}
+@keyframes color-change {
+ 0% { color: green; }
+    25% {color: lightblue}
+    50% { color: blue; }
+    75% {color: lightblue;}
+    100% { color: green; }
+}
+
+a:hover{
+  
+    color:red;
+   
+}
+
+h3{
+        text-align: center;
+        color:greenyellow;
+    }
+  
+ h1{
+    line-height: 2pt;
+    font-family : "comic sans",serif,cursive;
+    font-style: oblique;
+    
+    padding-bottom: 0; 
+    text-align: center;
+    -webkit-animation: color-change 5s infinite;
+    -moz-animation: color-change 5s infinite;
+    -o-animation: color-change 5s infinite;
+    -ms-animation: color-change 5s infinite;
+     animation: color-change 5s infinite;
+    text-shadow: 2px 2px #ff0000;
+}
+
+/*Responsive design- screen width differences*/
+@media only screen and (min-width:800px){
+    html{
+        line-height: 12pt;
+        padding: 5%;
+        margin:5%;
+      
+    }
+   
+    img{
+    height: 120px;
+    width: 120px;
+    margin: auto;
+    position: inherit;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+   
+}
+    h1{font-size: 75px;}
+    body > a{
+    
+    position: relative;
+    top: -140px;
+    left: -35px;
+    text-decoration: none;
+    font-size: 20px;
+  
+}
+    
+  
+    
+    div{
+        overflow-wrap:break-word;
+        border-style: outset inset;
+      border-width:8px;
+       display: flex;
+        flex-flow: row;
+        justify-content: space-around;
+        background-color: lightblue;
+        
+    }
+   
+}
+
+@media only screen and (min-width: 400px) and (max-width: 800px){
+    html{      
+        line-height: 75pt;
+    }
+    img{
+        height:80px;
+        width: 80px;
+        margin: auto;
+        position: inherit;
+         display: flex;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+    }
+    
+    h1{
+        padding-top: 10%;
+        
+        font-size: 50px;
+    }
+    body>a{
+    
+        position: relative;
+        top: -140px;
+        left: 15px;
+         text-decoration: none;
+    font-size: 17px;
+    }
+    #meme{
+        line-height: 30pt;
+          position: relative;
+        top:-60px;
+    }
+    div{
+       
+        overflow-wrap:break-word;
+        border-style: outset inset;
+        border-width:8px;
+        display: flex;
+        flex-flow: column;
+        justify-content: space-between;
+        align-items: center;
+        background-color: lightblue;
+        font-size: inherit;
+    }
+    .email{
+        font-size: 20pt;
+    }
+}
+
+@media only screen and (max-width: 400px) {
+    
+     html{      
+        line-height: 75pt;
+         box-shadow: none;
+    }
+    img{
+        height:80px;
+        width: 80px;
+        margin: auto;
+        position: inherit;
+         display: flex;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+    }
+    
+    h1{
+        padding-top: 8%;
+        
+        font-size: 25px;
+    }
+   
+    body>a{
+    
+        position: relative;
+        top: -90px;
+        left: 0px;
+         text-decoration: none;
+    font-size: 15px;
+    }
+    #meme{
+        position: relative;
+        top:-60px;
+        line-height: 30pt;
+    }
+    div{
+       
+       flex-wrap: wrap;
+        word-wrap:break-word;
+        border-style: outset inset;
+        border-width:8px;
+        display: flex;
+        flex-flow: column;
+        justify-content: space-between;
+        align-items: center;
+        background-color: lightblue;
+        font-size: inherit;
+    }
+    .email{
+        font-size: 14pt;
+    }
+}
