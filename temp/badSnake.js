@@ -10,7 +10,10 @@ import './styles.css'
 //===================================
 //start of X O stuff (move.js)
 //currently pretty , but I don't care to touch it up
+//uses react api
+
 function Example() {
+  //set up hooks
   const [count, setCount] = useState(0);
   const [yPos, setYPos] = useState(150);
   const [xPos, setXPos] = useState(150);
@@ -23,7 +26,8 @@ function Example() {
   });
 
   function keyPressed(e) {
-    //window.clearInterval(interval);
+    
+    //simply moves updates some style controlling variables on keypresses
     var temp1 = yPos;
     var temp2 = xPos;
     var x = 0;
@@ -47,20 +51,19 @@ function Example() {
       y = 0;
       x = 10;
     }
-    //doesnt know where it's supposed to be
-
     setXPos(temp2 + x);
     setYPos(temp1 + y);
     temp2 += x;
     temp1 += y;
 
+    //must be exactly over the x as of now, maybe should make it a range
     if (yPos === r1 && xPos === r2) {
       setR1(Math.ceil((Math.random() * 300) / 10) * 10);
       setR2(Math.ceil((Math.random() * 300) / 10) * 10);
       setCount(Math.floor(count + 50 * Math.random()));
     }
   }
-
+//apparently styling can be done like this
   const s = {
     position: "absolute",
     top: r1,
@@ -70,6 +73,7 @@ function Example() {
     color: "red",
     display: "inline-block"
   };
+  //Displays everything, score updates randomly btw
   return (
     <div>
       <span style={s}>X</span>
@@ -84,9 +88,14 @@ function Example() {
     </div>
   );
 }
+//Commented out bc obnoxious
 //alert('Click the O to start, use arrow keys to move!')
 const rootElement = document.getElementById("root");
 ReactDOM.render(<Example />, rootElement);
+
+//=====================
+//start of color stuff
+//Uses redux api 
 
 const initialState = {
   prev: [],
@@ -94,13 +103,6 @@ const initialState = {
   future: []
 };
 
-//=====================
-//start of color stuff
-//currently has a bug? feature? where if you undo, then change color then redo
-//that color gets "inserted" between the two old colors
-//I.e. If I do white, red, blue , then undo 2x then enter green
-//then redo, it will proceed as if I put in white, green, red , blue
-//Maybe it should delete the old future rather than inserting between it? 
 function test(state = initialState, action) {
   var curr = state.color;
   var past = state.prev;
@@ -108,6 +110,7 @@ function test(state = initialState, action) {
   switch (action.type) {
     case CHANGE_BG:
       return Object.assign({}, state, {
+        //Had to try to filter everything to fix an old bug... 
         prev: [curr, ...past].filter(function(element) {
           return element !== undefined;
         }),
@@ -191,6 +194,10 @@ function redo() {
 }
 const boundRedo = color => store.dispatch(redo());
 
+//Uses regular js to make some elements to interact
+//with the redux stuff and change the bgColors
+//I don't like react-redux
+
 var a = document.createElement("input");
 document.getElementById("root1").appendChild(a);
 a.placeholder = "Enter a color";
@@ -207,7 +214,6 @@ var b = document.createElement("button");
 document.getElementById("root1").appendChild(b);
 b.innerHTML = "undo";
 b.onclick = () => {
-  //if there is no past,don't undo?
   boundUndo();
   document.body.style.backgroundColor = "" + store.getState().color;
   changeTextColor(); 
@@ -222,11 +228,13 @@ c.onclick = () => {
   document.body.style.backgroundColor = "" + store.getState().color;
   changeTextColor();
 };
+
 //===================
-//helpers
+//helper functions!
 
 //helper function purloined from SO post
 //incredibly dumb, but works fine
+//meant to determine if text is a color
 function GoodColor(color) {
   var color2 = "";
   var result = true;
@@ -241,12 +249,11 @@ function GoodColor(color) {
   return result;
 }
 
-//changes to text color based on bg color
+//changes text color based on bg color
 //partially adapted from so
 //there is probably a better means of getting and parsing the rgb
 function changeTextColor() {
   var rgb = window.getComputedStyle(document.body).backgroundColor;
-  //if (red*0.299 + green*0.587 + blue*0.114) > 186 use #000000 else use #ffffff  
   //console.log(rgb.split("(")[1].split(",")[2].split(")"));
   var arr = rgb.split("(")[1].split(",");
   var val = (parseInt(arr[0],10)*0.299 + parseInt(arr[1],10)*0.587 + parseInt(arr[2].split(")")[0],10)*0.114);
