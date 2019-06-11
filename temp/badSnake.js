@@ -87,7 +87,7 @@ function Example() {
           var plr = document.getElementById('player');
           plr.parentNode.removeChild(plr); 
         }
-      }, 50);
+      }, 1000);
      
     }
 //apparently styling can be done like this
@@ -98,7 +98,8 @@ function Example() {
     height: "25px",
     width: "25px",
     display: "inline-block",
-    color : 'red'
+    color : 'red', 
+   fontSize : '25px'
   };
   function mClick(e){
     document.getElementById("nerd").textContent = "Only nerds don't like marquees"
@@ -114,7 +115,7 @@ function Example() {
         onKeyDown={keyPressed}
         tabIndex="0"
         id = 'player'
-        style={{ position: "absolute", top: yPos, left: xPos }}
+        style={{fontSize: '25px' , position: "absolute", top: yPos, left: xPos }}
         onClick = {click}>
         ʘ
         <p id = 'kill' style = {{margin : '-3px'}}>{"↑↑ click me....use arrow keys"}</p>
