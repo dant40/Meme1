@@ -5,20 +5,30 @@ import './styles.css'
 
 //===================================
 /*An awful game(?)
-* should not be played(?) by anyone
+* May be the worst thing I've ever made
+* Known issues:
+* Sometime you slip into the void while moving
+* Sometimes X spawns in out of view places 
 */
+
 //===================================
 //start of X O stuff (move.js)
 //currently pretty , but I don't care to touch it up
 //uses react api
 
+var s;
+var speed = (window.innerHeight/20);
+//console.log(speed);
 function Example() {
   //set up hooks
   const [count, setCount] = useState(0);
+  const [highScore,setHighScore] = useState(document.cookie.split("highscore=")[1]);
   const [yPos, setYPos] = useState(150);
   const [xPos, setXPos] = useState(150);
-  const [r1, setR1] = useState(Math.ceil((Math.random() * 250) / 10) * 10);
-  const [r2, setR2] = useState(Math.ceil((Math.random() * 250) / 10) * 10);
+  const [timer, setTimer] = useState(0);
+  const [r1, setR1] = useState((Math.random() * window.innerHeight));
+  const [r2, setR2] = useState((Math.random() * window.innerWidth));
+
 
   useEffect(() => {
     // Update the document title using the browser API
@@ -32,64 +42,87 @@ function Example() {
     var temp2 = xPos;
     var x = 0;
     var y = 0;
-
     if (e.key === "ArrowUp") {
-      y = -10;
+      y = -1 * speed;
       x = 0;
     }
-
     if (e.key === "ArrowDown") {
-      y = 10;
+      y = 1 * speed;
       x = 0;
     }
     if (e.key === "ArrowLeft") {
       y = 0;
-      x = -10;
+      x = -1 * speed;
     }
     //window.clearInterval(interval);
     if (e.key === "ArrowRight") {
       y = 0;
-      x = 10;
-    }
+      x = 1 * speed;
+    } 
     setXPos(temp2 + x);
     setYPos(temp1 + y);
     temp2 += x;
     temp1 += y;
-
     //must be exactly over the x as of now, maybe should make it a range
-    if (yPos === r1 && xPos === r2) {
-      setR1(Math.ceil((Math.random() * 300) / 10) * 10);
-      setR2(Math.ceil((Math.random() * 300) / 10) * 10);
-      setCount(Math.floor(count + 50 * Math.random()));
-    }
+    if (isNear(yPos,r1) && isNear(xPos,r2)) {
+      setR1((Math.random() * window.innerHeight));
+      setR2((Math.random() * window.innerWidth));
+      setCount(Math.floor(count + 75 * Math.random()));
   }
+  if(highScore < count){
+    document.cookie = "highscore = " + count;
+   // console.log(document.cookie.split("highscore=")[1]);
+    setHighScore(count);
+  }
+}
+  function click(e){
+     var p = document.getElementById('kill');
+     p.parentNode.removeChild(p);
+     var curr = 100;
+     setTimer(100);
+     var i = setInterval(function(){
+        setTimer(curr--);
+        if(curr <= 0){      
+          clearInterval(i);
+          var plr = document.getElementById('player');
+          plr.parentNode.removeChild(plr); 
+        }
+      }, 50);
+     
+    }
 //apparently styling can be done like this
-  const s = {
+  s = {
     position: "absolute",
     top: r1,
     left: r2,
     height: "25px",
     width: "25px",
-    color: "red",
-    display: "inline-block"
+    display: "inline-block",
+    color : 'red'
   };
+  function mClick(e){
+    document.getElementById("nerd").textContent = "Only nerds don't like marquees"
+    console.log("Cry me a river, nerd"); 
+  }
   //Displays everything, score updates randomly btw
   return (
     <div>
-      <span style={s}>X</span>
-      <p id = 'top'>Your score: {count} </p>
+      <span id='x' style={s}>X</span>
+      <marquee onClick = {mClick} style = {{fontFamily: 'monospace', margin: '-5px'}}><p id = 'nerd'>Refresh Page to Replay</p></marquee>
+      <p id = 'top'>Time:{timer} Your score:{count} High Score:{highScore} </p>
       <div
         onKeyDown={keyPressed}
         tabIndex="0"
+        id = 'player'
         style={{ position: "absolute", top: yPos, left: xPos }}
-      >
+        onClick = {click}>
         ʘ
+        <p id = 'kill' style = {{margin : '-3px'}}>{"↑↑ click me....use arrow keys"}</p>
       </div>
     </div>
   );
 }
-//Commented out bc obnoxious
-//alert('Click the O to start, use arrow keys to move!')
+
 const rootElement = document.getElementById("root");
 ReactDOM.render(<Example />, rootElement);
 
@@ -100,13 +133,15 @@ ReactDOM.render(<Example />, rootElement);
 const initialState = {
   prev: [],
   color: "white",
-  future: []
+  future: [],
+  isCycling : false
 };
 
 function test(state = initialState, action) {
   var curr = state.color;
   var past = state.prev;
   var fut = state.future;
+  
   switch (action.type) {
     case CHANGE_BG:
       return Object.assign({}, state, {
@@ -117,7 +152,8 @@ function test(state = initialState, action) {
         color: action.color,
         future: fut.filter(function(element) {
           return element !== undefined;
-        })
+        }),
+        isCycling : false
       });
 
     case UNDO:
@@ -127,7 +163,8 @@ function test(state = initialState, action) {
       
           color: curr ,
           prev: past ,
-          future: fut
+          future: fut,
+          isCycling : false
         });
       }
       else{
@@ -139,7 +176,8 @@ function test(state = initialState, action) {
         }),
         future: [curr, ...fut].filter(function(element) {
           return element !== undefined;
-        })
+        }),
+        isCycling : false
       });}
 
     case REDO:
@@ -149,7 +187,8 @@ function test(state = initialState, action) {
     
         color: curr ,
         prev: past ,
-        future: fut
+        future: fut,
+        isCycling : false
       });
     }
     else{
@@ -160,8 +199,25 @@ function test(state = initialState, action) {
         }),
         future: fut.slice(1).filter(function(element) {
           return element !== undefined;
-        })
-      });}
+        }),
+        isCycling : false
+      });} 
+    case CYCLE:
+    if(!state.isCycling){
+        return Object.assign({},state,{
+          color: curr ,
+          prev: past ,
+          future: fut ,
+          isCycling : true
+        });    }
+      else {return Object.assign({},state,{
+        color: curr ,
+        prev: past ,
+        future: fut ,
+        isCycling : false
+      });
+    }
+
     default:
       return state;
   }
@@ -170,6 +226,7 @@ function test(state = initialState, action) {
 const CHANGE_BG = "CHANGE_BG";
 const UNDO = "UNDO";
 const REDO = "REDO";
+const CYCLE = "CYCLE";
 const store = createStore(test);
 
 function changeBg(color) {
@@ -194,6 +251,12 @@ function redo() {
 }
 const boundRedo = color => store.dispatch(redo());
 
+function cycle() {
+  return {
+    type: CYCLE
+  };
+}
+const boundCycle = color => store.dispatch(cycle());
 //Uses regular js to make some elements to interact
 //with the redux stuff and change the bgColors
 //I don't like react-redux
@@ -223,10 +286,40 @@ var c = document.createElement("button");
 document.getElementById("root1").appendChild(c);
 c.innerHTML = "redo";
 c.onclick = () => {
+  
   //if(store.getState().color !== undefined)
   boundRedo();
   document.body.style.backgroundColor = "" + store.getState().color;
   changeTextColor();
+};
+//is supposed to continually go through the
+//color array saved in store
+//var si;
+var d = document.createElement("button");
+document.getElementById('root1').appendChild(d);
+d.innerHTML = "cycle";
+d.onclick = () => {
+ boundCycle();
+ console.log(store.getState());
+ alert("NYI");
+ 
+ /*
+  si = setInterval(()=>{
+    if(store.getState().prev.length > 0 && store.getState().isCycling){
+        
+      boundUndo();
+      document.body.style.backgroundColor = "" + store.getState().color;
+      changeTextColor(); 
+    }
+  else {
+      boundRedo();
+      document.body.style.backgroundColor = "" + store.getState().color;
+      changeTextColor(); 
+    }
+  },200);
+
+  if(!store.getState().isCycling) clearInterval(si);
+*/
 };
 
 //===================
@@ -262,6 +355,18 @@ function changeTextColor() {
     document.body.style.color = 'black' ;
   }
   else document.body.style.color = 'white';
+  var x =document.getElementById('x');
+  if(parseInt(arr[0],10) > 175){
+     x.style.color = 'green';    
+  }
+  else x.style.color = 'red';
   return;
 }
+
+function isNear(a,b){
+  let val = Math.abs(a-b);
+  if(val <= speed + 5) return true;
+  else return false;
+}
+
 //===================
