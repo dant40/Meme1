@@ -1,4 +1,4 @@
-# Bad Snake
+# Crappy Snake
 
 Contents:
 ------
