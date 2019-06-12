@@ -61,7 +61,7 @@ function Game() {
     temp2 += x;
     temp1 += y;
 
-    if (isNear(yPos,r1) && isNear(xPos,r2)) {
+    if (isNear(yPos,r1,speed) && isNear(xPos,r2,speed)) {
       setR1((Math.random() * window.innerHeight));
       setR2((Math.random() * window.innerWidth));
       setCount(Math.floor(count + 75 * Math.random()));
@@ -361,7 +361,7 @@ function changeTextColor() {
   return;
 }
 
-function isNear(a,b){
+function isNear(a,b,speed){
   let val = Math.abs(a-b);
   if(val <= speed + 5) return true;
   else return false;
