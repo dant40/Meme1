@@ -12,8 +12,8 @@ import './styles.css'
 */
 
 //===================================
-//start of X O stuff (move.js)
-//currently pretty , but I don't care to touch it up
+//start of X O stuff (originally move.js)
+//currently pretty unfun , but I don't care to touch it up
 //uses react api
 
 function Game() {
