@@ -16,9 +16,8 @@ import './styles.css'
 //currently pretty , but I don't care to touch it up
 //uses react api
 
-var speed = (window.innerHeight/20);
-
 function Game() {
+  const speed = (window.innerHeight/20);
   //set up hooks
   const [count, setCount] = useState(0);
   const [yPos, setYPos] = useState(150);
