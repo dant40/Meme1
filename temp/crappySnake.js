@@ -35,7 +35,7 @@ function Game() {
 
 //handles all movement and scorekeeping
   function keyPressed(e) {
-    //simply moves updates some style controlling variables on keypresses
+    //simply updates some style controlling variables on keypresses
     var temp1 = yPos;
     var temp2 = xPos;
     var x = 0;
