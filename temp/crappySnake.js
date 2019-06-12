@@ -205,7 +205,27 @@ function test(state = initialState, action) {
           future: fut ,
           isCycling : !state.isCycling
         });    
-      
+    
+    case PRESET1:    
+        return Object.assign({},state,{
+          color : 'rbg(100,150,250)',
+          prev :  ['rgb(105,175,250)',
+          'rgb(110,180,250)',
+          'rgb(115,185,250)',
+          'rgb(120,190,250)',
+          'rgb(125,195,250)',
+          'rgb(130,200,250)',
+          'rgb(135,205,250)',
+          'rgb(140,210,250)',
+          'rgb(145,215,250)',
+          'rgb(150,220,250)',
+          'rgb(155,225,250)',
+          'rgb(160,230,250)',
+          'rgb(165,235,250)',
+          'rgb(170,240,250)',],
+          future: [] 
+        });
+
     default:
       return state;
   }
@@ -215,6 +235,7 @@ const CHANGE_BG = "CHANGE_BG";
 const UNDO = "UNDO";
 const REDO = "REDO";
 const CYCLE = "CYCLE";
+const PRESET1 = "PRESET1";
 const store = createStore(test);
 
 function changeBg(color) {
@@ -246,6 +267,12 @@ function cycle() {
 }
 const boundCycle = color => store.dispatch(cycle());
 
+function preset(){
+  return {
+    type: PRESET1
+  };
+}
+const boundPreset = color => store.dispatch(preset());
 //Uses regular js to make some elements to interact
 //with the redux stuff and change the bgColors
 //I don't like react-redux
@@ -289,36 +316,26 @@ c.onclick = () => {
 //hitting other buttons tends to break it
 var d = document.createElement("button");
 document.getElementById('root1').appendChild(d);
-d.innerHTML = "cycle";
+d.innerHTML = "cycle (fast)";
 d.onclick = () => {
  boundCycle();
- const pastLen = store.getState().prev.length;
- var temp = 0;
- var flag = true;
- var si;
- si = setInterval(()=>{
-    if(store.getState().isCycling){
-      if(temp < pastLen && flag){
-        boundUndo();
-        document.body.style.backgroundColor = "" + store.getState().color;
-        changeTextColor();
-        temp++;
-      }
-      else {
-        flag  = false;
-        boundRedo();
-        document.body.style.backgroundColor = "" + store.getState().color;
-        changeTextColor();
-        temp--;
-        if(temp === 0){flag = true}
-      }
-  }
-  else clearInterval(si);
-  },500);
-
-  
-
+ doCycle(75);
 };
+
+var d1 = document.createElement("button");
+document.getElementById('root1').appendChild(d1);
+d1.innerHTML = "cycle (slow)";
+d1.onclick = () => {
+ boundCycle();
+ doCycle(500);
+};
+
+var e = document.createElement("button");
+document.getElementById('root1').appendChild(e);
+e.innerHTML = "preset";
+e.onclick = () => {
+  boundPreset();
+}
 
 //===================
 //helper functions!
@@ -366,5 +383,29 @@ function isNear(a,b,speed){
   if(val <= speed + 5) return true;
   else return false;
 }
+
+function doCycle(rate){const pastLen = store.getState().prev.length;
+  var temp = 0;
+  var flag = true;
+  var si;
+  si = setInterval(()=>{
+     if(store.getState().isCycling){
+       if(temp < pastLen && flag){
+         boundUndo();
+         document.body.style.backgroundColor = "" + store.getState().color;
+         changeTextColor();
+         temp++;
+       }
+       else {
+         flag  = false;
+         boundRedo();
+         document.body.style.backgroundColor = "" + store.getState().color;
+         changeTextColor();
+         temp--;
+         if(temp === 0){flag = true}
+       }
+   }
+   else clearInterval(si);
+   },rate);}
 
 //===================
