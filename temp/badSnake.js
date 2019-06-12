@@ -16,27 +16,26 @@ import './styles.css'
 //currently pretty , but I don't care to touch it up
 //uses react api
 
-var s;
 var speed = (window.innerHeight/20);
-//console.log(speed);
-function Example() {
+
+function Game() {
   //set up hooks
   const [count, setCount] = useState(0);
-  const [highScore,setHighScore] = useState(document.cookie.split("highscore=")[1]);
   const [yPos, setYPos] = useState(150);
   const [xPos, setXPos] = useState(150);
   const [timer, setTimer] = useState(0);
   const [r1, setR1] = useState((Math.random() * window.innerHeight));
   const [r2, setR2] = useState((Math.random() * window.innerWidth));
 
-
   useEffect(() => {
     // Update the document title using the browser API
-    document.title = `Yeet`;
+    document.cookie = "highscore = " + count;
+    document.title = `A Terrible Experience`;
   });
+  const [highScore,setHighScore] = useState(document.cookie.split("highscore=")[1]);
 
+//handles all movement and scorekeeping
   function keyPressed(e) {
-    
     //simply moves updates some style controlling variables on keypresses
     var temp1 = yPos;
     var temp2 = xPos;
@@ -54,7 +53,6 @@ function Example() {
       y = 0;
       x = -1 * speed;
     }
-    //window.clearInterval(interval);
     if (e.key === "ArrowRight") {
       y = 0;
       x = 1 * speed;
@@ -63,7 +61,7 @@ function Example() {
     setYPos(temp1 + y);
     temp2 += x;
     temp1 += y;
-    //must be exactly over the x as of now, maybe should make it a range
+
     if (isNear(yPos,r1) && isNear(xPos,r2)) {
       setR1((Math.random() * window.innerHeight));
       setR2((Math.random() * window.innerWidth));
@@ -71,10 +69,10 @@ function Example() {
   }
   if(highScore < count){
     document.cookie = "highscore = " + count;
-   // console.log(document.cookie.split("highscore=")[1]);
     setHighScore(count);
   }
 }
+//handles clicking on O behavior
   function click(e){
      var p = document.getElementById('kill');
      p.parentNode.removeChild(p);
@@ -82,16 +80,16 @@ function Example() {
      setTimer(100);
      var i = setInterval(function(){
         setTimer(curr--);
-        if(curr <= 0){      
+        if(curr <= 0){     
+          document.getElementById("nerd").textContent = "Game Over" 
           clearInterval(i);
           var plr = document.getElementById('player');
           plr.parentNode.removeChild(plr); 
         }
       }, 1000);
-     
     }
 //apparently styling can be done like this
-  s = {
+  var s = {
     position: "absolute",
     top: r1,
     left: r2,
@@ -101,6 +99,7 @@ function Example() {
     color : 'red', 
    fontSize : '25px'
   };
+//handles easter egg marquee behavior
   function mClick(e){
     document.getElementById("nerd").textContent = "Only nerds don't like marquees"
     console.log("Cry me a river, nerd"); 
@@ -125,7 +124,7 @@ function Example() {
 }
 
 const rootElement = document.getElementById("root");
-ReactDOM.render(<Example />, rootElement);
+ReactDOM.render(<Game />, rootElement);
 
 //=====================
 //start of color stuff
@@ -142,7 +141,7 @@ function test(state = initialState, action) {
   var curr = state.color;
   var past = state.prev;
   var fut = state.future;
-  
+  //handles all the various state changes
   switch (action.type) {
     case CHANGE_BG:
       return Object.assign({}, state, {
@@ -154,18 +153,15 @@ function test(state = initialState, action) {
         future: fut.filter(function(element) {
           return element !== undefined;
         }),
-        isCycling : false
       });
 
     case UNDO:
       if(past[0] === undefined)
       {
         return Object.assign({}, state, {
-      
           color: curr ,
           prev: past ,
-          future: fut,
-          isCycling : false
+          future: fut,   
         });
       }
       else{
@@ -178,7 +174,7 @@ function test(state = initialState, action) {
         future: [curr, ...fut].filter(function(element) {
           return element !== undefined;
         }),
-        isCycling : false
+       
       });}
 
     case REDO:
@@ -189,7 +185,7 @@ function test(state = initialState, action) {
         color: curr ,
         prev: past ,
         future: fut,
-        isCycling : false
+        
       });
     }
     else{
@@ -200,25 +196,17 @@ function test(state = initialState, action) {
         }),
         future: fut.slice(1).filter(function(element) {
           return element !== undefined;
-        }),
-        isCycling : false
+        }),       
       });} 
+
     case CYCLE:
-    if(!state.isCycling){
         return Object.assign({},state,{
           color: curr ,
           prev: past ,
           future: fut ,
-          isCycling : true
-        });    }
-      else {return Object.assign({},state,{
-        color: curr ,
-        prev: past ,
-        future: fut ,
-        isCycling : false
-      });
-    }
-
+          isCycling : !state.isCycling
+        });    
+      
     default:
       return state;
   }
@@ -258,10 +246,12 @@ function cycle() {
   };
 }
 const boundCycle = color => store.dispatch(cycle());
+
 //Uses regular js to make some elements to interact
 //with the redux stuff and change the bgColors
 //I don't like react-redux
 
+//Handles color input box
 var a = document.createElement("input");
 document.getElementById("root1").appendChild(a);
 a.placeholder = "Enter a color";
@@ -274,6 +264,7 @@ a.onkeydown = e => {
   } else if (e.key === "Enter") a.value = "";
 };
 
+//handles all undo button actions
 var b = document.createElement("button");
 document.getElementById("root1").appendChild(b);
 b.innerHTML = "undo";
@@ -283,44 +274,51 @@ b.onclick = () => {
   changeTextColor(); 
 };
 
+//handles all redo button actions
 var c = document.createElement("button");
 document.getElementById("root1").appendChild(c);
 c.innerHTML = "redo";
 c.onclick = () => {
-  
-  //if(store.getState().color !== undefined)
   boundRedo();
   document.body.style.backgroundColor = "" + store.getState().color;
   changeTextColor();
 };
+
 //is supposed to continually go through the
 //color array saved in store
-//var si;
+//has a several bugs, but tecnically works
+//hitting other buttons tends to break it
 var d = document.createElement("button");
 document.getElementById('root1').appendChild(d);
 d.innerHTML = "cycle";
 d.onclick = () => {
  boundCycle();
- console.log(store.getState());
- alert("NYI");
- 
- /*
-  si = setInterval(()=>{
-    if(store.getState().prev.length > 0 && store.getState().isCycling){
-        
-      boundUndo();
-      document.body.style.backgroundColor = "" + store.getState().color;
-      changeTextColor(); 
-    }
-  else {
-      boundRedo();
-      document.body.style.backgroundColor = "" + store.getState().color;
-      changeTextColor(); 
-    }
-  },200);
+ const pastLen = store.getState().prev.length;
+ var temp = 0;
+ var flag = true;
+ var si;
+ si = setInterval(()=>{
+    if(store.getState().isCycling){
+      if(temp < pastLen && flag){
+        boundUndo();
+        document.body.style.backgroundColor = "" + store.getState().color;
+        changeTextColor();
+        temp++;
+      }
+      else {
+        flag  = false;
+        boundRedo();
+        document.body.style.backgroundColor = "" + store.getState().color;
+        changeTextColor();
+        temp--;
+        if(temp === 0){flag = true}
+      }
+  }
+  else clearInterval(si);
+  },500);
 
-  if(!store.getState().isCycling) clearInterval(si);
-*/
+  
+
 };
 
 //===================
