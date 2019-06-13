@@ -150,7 +150,7 @@ function Game() {
       </div>
       <span id = "audio">
         {/*Potential here again for user input */}
-        <Player url ="https://github.com/dant40/Meme1/blob/gh-pages/temp/Sonic%20Mania%20OST%20-%20Mirage%20Saloon%20Act%202.mp3" ></Player>
+        <Player url ="https://raw.githubusercontent.com/dant40/Meme1/gh-pages/temp/Sonic%20Mania%20OST%20-%20Mirage%20Saloon%20Act%202.mp3" ></Player>
       </span>
     </div>
   );
