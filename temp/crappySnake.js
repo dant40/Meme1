@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { createStore } from "redux";
@@ -16,6 +17,35 @@ import './styles.css'
 //currently pretty unfun , but I don't care to touch it up
 //uses react api
 
+// This a component "borrowed" from SO
+// Why reinvent the wheel, right?
+// (I know, I know, but html audio tags thrown into my JSX didn't work)   
+const useAudio = url => {
+  const [audio] = useState(new Audio(url));
+  const [playing, setPlaying] = useState(false);
+
+  const toggle = () => setPlaying(!playing);
+
+  useEffect(() => {
+    playing ? audio.play() : audio.pause();
+  });
+
+  return [playing, toggle];
+};
+
+const Player = ({ url }) => {
+
+  const [playing, toggle] = useAudio(url);
+
+  return (
+    <div>
+      <button  onClick={toggle}>{playing ? "Pause" : "Play Audio"}</button>
+    </div>
+  );
+};
+
+
+//This is the actual "game" controller
 function Game() {
   const speed = (window.innerHeight/20);
   //set up hooks
@@ -29,7 +59,7 @@ function Game() {
   useEffect(() => {
     // Update the document title using the browser API
     document.cookie = "highscore = " + count;
-    document.title = `A Terrible Experience`;
+    document.title = `A Mediocre Experience`;
   });
   const [highScore,setHighScore] = useState(document.cookie.split("highscore=")[1]);
 
@@ -86,7 +116,7 @@ function Game() {
           plr.parentNode.removeChild(plr); 
         }
       }, 1000);
-    }
+    } 
 //apparently styling can be done like this
   var s = {
     position: "absolute",
@@ -118,6 +148,10 @@ function Game() {
         ʘ
         <p id = 'kill' style = {{margin : '-3px'}}>{"↑↑ click me....use arrow keys"}</p>
       </div>
+      <span id = "audio">
+        {/*Potential here again for user input */}
+        <Player url ="https://github.com/dant40/Meme1/blob/gh-pages/temp/Sonic%20Mania%20OST%20-%20Mirage%20Saloon%20Act%202.mp3" ></Player>
+      </span>
     </div>
   );
 }
@@ -205,7 +239,8 @@ function test(state = initialState, action) {
           future: fut ,
           isCycling : !state.isCycling
         });    
-    
+    //the foundation exists here for a user
+    //created gradient thing
     case PRESET1:    
         return Object.assign({},state,{
           color : 'rbg(100,150,250)',
@@ -324,7 +359,7 @@ d.onclick = () => {
 
 var d1 = document.createElement("button");
 document.getElementById('root1').appendChild(d1);
-d1.innerHTML = "cycle (slow)";
+d1.innerHTML = "cycle";
 d1.onclick = () => {
  boundCycle();
  doCycle(500);
@@ -358,7 +393,7 @@ function GoodColor(color) {
 }
 
 //changes text color based on bg color
-//partially adapted from so
+//adapted from so
 //there is probably a better means of getting and parsing the rgb
 function changeTextColor() {
   var rgb = window.getComputedStyle(document.body).backgroundColor;
@@ -383,7 +418,9 @@ function isNear(a,b,speed){
   if(val <= speed + 5) return true;
   else return false;
 }
-
+//this function is used to do the cycling action at a given rate
+//in theory it could easily be repurposed to allow user input
+//to determine cycling rate
 function doCycle(rate){const pastLen = store.getState().prev.length;
   var temp = 0;
   var flag = true;
@@ -407,5 +444,6 @@ function doCycle(rate){const pastLen = store.getState().prev.length;
    }
    else clearInterval(si);
    },rate);}
+
 
 //===================
