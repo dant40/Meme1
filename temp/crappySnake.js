@@ -44,7 +44,6 @@ const Player = ({ url }) => {
   );
 };
 
-
 //This is the actual "game" controller
 function Game() {
   const speed = (window.innerHeight/20);
@@ -149,7 +148,6 @@ function Game() {
         <p id = 'kill' style = {{margin : '-3px'}}>{"↑↑ click me....use arrow keys"}</p>
       </div>
       <span id = "audio">
-        {/*Potential here again for user input */}
         <Player url ="https://raw.githubusercontent.com/dant40/Meme1/gh-pages/temp/Sonic%20Mania%20OST%20-%20Mirage%20Saloon%20Act%202.mp3" ></Player>
       </span>
     </div>
@@ -482,16 +480,4 @@ function doCycle(rate){const pastLen = store.getState().prev.length;
    }
    else clearInterval(si);
    },rate);}
-
-//parses files of the type dclr (dan color)
-//into an array of hexidecimal color values
-function parseDclr(file) {
-  console.log(file);
-  /*var r = new FileReader();
-  console.log(r.readAsText(file));
-  var ans = r.readAsText(file).split('x');  
-  console.log(ans);*/
-}
-
-
 //===================
