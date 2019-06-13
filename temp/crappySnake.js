@@ -33,7 +33,7 @@ const useAudio = url => {
   return [playing, toggle];
 };
 
-const Player = ({ url }) => {
+const AudPlayer = ({ url }) => {
 
   const [playing, toggle] = useAudio(url);
 
@@ -148,7 +148,7 @@ function Game() {
         <p id = 'kill' style = {{margin : '-3px'}}>{"↑↑ click me....use arrow keys"}</p>
       </div>
       <span id = "audio">
-        <Player url ="https://raw.githubusercontent.com/dant40/Meme1/gh-pages/temp/Sonic%20Mania%20OST%20-%20Mirage%20Saloon%20Act%202.mp3" ></Player>
+        <AudPlayer url ="https://raw.githubusercontent.com/dant40/Meme1/gh-pages/temp/Sonic%20Mania%20OST%20-%20Mirage%20Saloon%20Act%202.mp3" ></AudPlayer>
       </span>
     </div>
   );
@@ -364,20 +364,16 @@ c.onclick = () => {
 //color array saved in store
 //has a several bugs, but tecnically works
 //hitting other buttons tends to break it
-var d = document.createElement("button");
+//can specify speed now in ms
+var d = document.createElement("input");
 document.getElementById('root1').appendChild(d);
-d.innerHTML = "cycle (fast)";
-d.onclick = () => {
- boundCycle();
- doCycle(75);
-};
-
-var d1 = document.createElement("button");
-document.getElementById('root1').appendChild(d1);
-d1.innerHTML = "cycle";
-d1.onclick = () => {
- boundCycle();
- doCycle(500);
+d.type = 'number';
+d.placeholder = "Cycle Rate"
+d.onkeypress = (e) => {
+ if(e.key === "Enter"){
+  boundCycle();
+  doCycle(d.value);
+ }
 };
 
 var e = document.createElement("button");
