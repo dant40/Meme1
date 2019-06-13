@@ -16,11 +16,11 @@ Features:
 + Play some copyright infringing audio
 + Choose a bg color preset to cycle through
 + Look at a marquee
++Let's user import a color preset
 
 Possible Planned Features:
 ------
 + Make user able to import any audio
-+ Let user import new preset color sets
 + Let user choose cycle speed
 + Make it less crappy
 
