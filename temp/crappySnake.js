@@ -328,7 +328,7 @@ a.onkeydown = e => {
 //handles all undo button actions
 var b = document.createElement("button");
 document.getElementById("root1").appendChild(b);
-b.innerHTML = "undo";
+b.innerHTML = "prev";
 b.onclick = () => {
   boundUndo();
   document.body.style.backgroundColor = "" + store.getState().color;
@@ -338,7 +338,7 @@ b.onclick = () => {
 //handles all redo button actions
 var c = document.createElement("button");
 document.getElementById("root1").appendChild(c);
-c.innerHTML = "redo";
+c.innerHTML = "next";
 c.onclick = () => {
   boundRedo();
   document.body.style.backgroundColor = "" + store.getState().color;
