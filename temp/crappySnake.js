@@ -6,7 +6,7 @@ import './styles.css'
 
 //===================================
 /*An awful game(?)
-* May be the worst thing I've ever made
+* May be the 2nd worst thing I've ever made
 * Known issues:
 * Sometime you slip into the void while moving
 * Sometimes X spawns in out of view places 
@@ -261,6 +261,13 @@ function test(state = initialState, action) {
           future: [] 
         });
 
+    case UPRESET:
+        return Object.assign({},state,{
+          color : action.colors[0],
+          future : [],
+          prev : action.colors
+        });
+
     default:
       return state;
   }
@@ -271,6 +278,7 @@ const UNDO = "UNDO";
 const REDO = "REDO";
 const CYCLE = "CYCLE";
 const PRESET1 = "PRESET1";
+const UPRESET = "UPRESET"
 const store = createStore(test);
 
 function changeBg(color) {
@@ -286,28 +294,37 @@ function undo() {
     type: UNDO
   };
 }
-const boundUndo = color => store.dispatch(undo());
+const boundUndo = () => store.dispatch(undo());
 
 function redo() {
   return {
     type: REDO
   };
 }
-const boundRedo = color => store.dispatch(redo());
+const boundRedo = () => store.dispatch(redo());
 
 function cycle() {
   return {
     type: CYCLE
   };
 }
-const boundCycle = color => store.dispatch(cycle());
+const boundCycle = () => store.dispatch(cycle());
 
 function preset(){
   return {
     type: PRESET1
   };
 }
-const boundPreset = color => store.dispatch(preset());
+const boundPreset = () => store.dispatch(preset());
+
+function uPreset(colors){
+  return {
+    type:UPRESET,
+    colors
+  };
+}
+const boundUPreset = colors =>store.dispatch(uPreset(colors));
+
 //Uses regular js to make some elements to interact
 //with the redux stuff and change the bgColors
 //I don't like react-redux
@@ -372,6 +389,27 @@ e.onclick = () => {
   boundPreset();
 }
 
+//adds a file input mechanism for importing color gradients
+//parses by newline
+var i = document.createElement("input");
+i.type = 'file';
+i.oninput = e => {
+  var f = e.target.files[0];   
+  if (f) {
+    var r = new FileReader();
+    r.onload = function(e) {             
+        var ct = r.result;
+        var colors = ct.split('\n');
+        colors = colors.filter(color => color !== "")
+        //console.log(colors); 
+        boundUPreset(colors);           
+    }
+    r.readAsText(f);
+  } else { 
+    alert("Failed to load file");
+  } 
+}
+document.getElementById("root1").appendChild(i);
 //===================
 //helper functions!
 
@@ -444,6 +482,16 @@ function doCycle(rate){const pastLen = store.getState().prev.length;
    }
    else clearInterval(si);
    },rate);}
+
+//parses files of the type dclr (dan color)
+//into an array of hexidecimal color values
+function parseDclr(file) {
+  console.log(file);
+  /*var r = new FileReader();
+  console.log(r.readAsText(file));
+  var ans = r.readAsText(file).split('x');  
+  console.log(ans);*/
+}
 
 
 //===================
