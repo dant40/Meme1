@@ -1,0 +1,60 @@
+
+<div id = "pic"></div>
+<style>
+    button{
+        height: 75px;
+        width:  75px;
+        border: none;
+    }
+</style>
+<script>
+
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+
+    var arr = [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]];
+    for(i = 0; i < 3; i++){
+        for(j = 0; j<5; j++){
+            var rand = Math.random()*10
+            if(rand >= 5)
+                arr[i][j]=1;
+        }
+    }
+    arr[3] =arr[1]
+    arr[4] = arr[0]
+
+    var d  =  document.getElementById("pic")
+    var x1 =  document.createElement('div')
+    var x2 =  document.createElement('div')
+    var x3 =  document.createElement('div')
+    var x4 =  document.createElement('div')
+    var x5 =  document.createElement('div')
+    clr = getRandomColor()
+    for(i = 0; i < 5; i++){
+        for(j = 0; j<5; j++){
+            var n = document.createElement('button')
+            if(arr[i][j] == 0){
+                n.style.backgroundColor = clr;
+            }
+            else n.style.backgroundColor = "#f0f0f0"
+            if(j==0)x1.append(n)
+            if(j==1)x2.append(n)
+            if(j==2)x3.append(n)
+            if(j==3)x4.append(n)
+            if(j==4)x5.append(n)
+        }
+     
+    }
+    d.appendChild(x1);
+    d.appendChild(x2);
+    d.appendChild(x3);
+    d.appendChild(x4);
+    d.appendChild(x5);
+</script>
+
