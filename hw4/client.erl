@@ -115,7 +115,7 @@ do_join(State, Ref, ChatName) ->
 					{PID,Ref,connect,History} -> 
 						NewMap = maps:put(ChatName,PID, State#cl_st.con_ch),
 						NewState= #cl_st { gui = State#cl_st.gui, nick = State#cl_st.nick, con_ch = NewMap},
-						{{result,self(),Ref,History},NewState}
+						{History,NewState}
 						%listen(newState)
 				 end
 	end.
@@ -131,10 +131,10 @@ do_leave(State, Ref, ChatName) ->
 						   {PID, Ref, ackleave} ->
 							   NewMap = maps:remove(ChatName,State#cl_st.con_ch),
 							   NewState = #cl_st { gui = State#cl_st.gui, nick = State#cl_st.nick, con_ch = NewMap},
-							   {{result,self(),Ref,ok},NewState}
+							   {ok,NewState}
 							 %listen(newState)
 						end;
-		error -> {{result, self(), Ref, err},State}
+		error -> {err,State}
 	end.
     % io:format("client:do_leave(...): IMPLEMENT ME~n"),
     % {{dummy_target, dummy_response}, State}.
@@ -143,16 +143,16 @@ do_leave(State, Ref, ChatName) ->
 do_new_nick(State, Ref, NewNick) ->
 	CurrNick = State#cl_st.nick,
 	if
-		CurrNick == NewNick ->{{result, self(), Ref, err_same},State};   
+		CurrNick == NewNick ->{ err_same,State};   
 							 %listen(State);
 		true -> whereis(server)!{self(), Ref, nick, NewNick},
 				receive
 					{Server, Ref, errnickused} -> 
-												{{result, self(), Ref, errnickused},State};
+												{errnickused,State};
 												%listen(State);
 					{Server, Ref, oknick} -> 
 										NewState = 	#cl_st { gui = State#cl_st.gui, nick = NewNick, con_ch = State#cl_st.con_ch},
-										{{result, self(), Ref, oknick},NewState}
+										{oknick,NewState}
 									%listen(NewState)
 				end 
 	end.
@@ -164,7 +164,7 @@ do_msg_send(State, Ref, ChatName, Message) ->
 	ChatPID = maps:get(ChatName,State#cl_st.con_ch),
 	ChatPID!{self(), Ref, message, Message},
 	receive
-		{PID, Ref, ackmsg} ->{result, self(), Ref,{msgsent,State#cl_st.nick}}
+		{PID, Ref, ackmsg} ->{{msgsent,State#cl_st.nick},State}
 	end.
     % io:format("client:do_new_nick(...): IMPLEMENT ME~n"),
     % {{dummy_target, dummy_response}, State}.
