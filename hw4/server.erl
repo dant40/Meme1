@@ -61,13 +61,14 @@ loop(State) ->
 %% executes join protocol from server perspective
 do_join(ChatName, ClientPID, Ref, State) ->
     Chats = State#serv_st.chatrooms,
-	ClientNick = maps:find(ClientPID,State#serv_st.nicks),
 	case maps:find(ChatName,Chats) of 
 		%% room exists
-		{ok, Value} -> Value!{self(), Ref, register, ClientPID,ClientNick},
+		{ok, Value} ->  ClientNick = maps:find(ClientPID,State#serv_st.nicks),
+						Value!{self(), Ref, register, ClientPID,ClientNick},
 						State;
 		%% room doesn't exist
 		error -> Room = spawn(chatroom,start_chatroom,[ChatName]),
+				 ClientNick = maps:find(ClientPID,State#serv_st.nicks),
 				 Room!{self(), Ref, register, ClientPID,ClientNick},
 				 NewChats = maps:put(ChatName,Room, State#serv_st.chatrooms),
 				 NewState = #serv_st {nicks = State#serv_st.nicks , registrations = State#serv_st.registrations, chatrooms= NewChats}			
@@ -96,8 +97,8 @@ do_new_nick(State, Ref, ClientPID, NewNick) ->
 		{ok, Value} -> ClientPID!{self(), Ref, errnickused},
 						State;
 		error -> 	NewNicks = maps:update(ClientPID,NewNick,Nicks),
-					ChatNames = list:filter(fun(Id) -> maps:get(Id, State#serv_st.registrations) == ClientPID end, maps:keys(State#serv_st.registrations)),
-					ChatPIDs =  list:map(fun(ChatName) -> maps:get(ChatName,State#serv_st.chatrooms) end, ChatNames),
+					ChatNames = lists:filter(fun(Id) -> lists:member(maps:get(Id, State#serv_st.registrations), ClientPID) end, maps:keys(State#serv_st.registrations)),
+					ChatPIDs =  lists:map(fun(ChatName) -> maps:get(ChatName,State#serv_st.chatrooms) end, ChatNames),
 					lists:map(fun(PID) -> PID!{self(), Ref, updatenick, ClientPID, NewNick} end , ChatPIDs),
 					ClientPID!{self(), Ref, oknick},
 					NewState = #serv_st {nicks = NewNicks, registrations = State#serv_st.registrations, chatrooms = State#serv_st.chatrooms}
