@@ -2,9 +2,17 @@ from socket import *
 from time import ctime
 from os import *
 
-def clientHandler(conn, cliAddress):
-	while True:
-		print("HERE")
+class clientHandler(Thread):
+	def __init__(self, socket, address):
+        Thread.__init__(self)
+        self.sock = socket
+        self.addr = address
+        self.start()
+
+    	def run(self):
+        	while 1:
+            		print('Got Request')
+            		self.sock.send('response')
 
 def server():
 	HOST = '' '''ip address'''
