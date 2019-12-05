@@ -4,10 +4,10 @@ from os import *
 
 class clientHandler(Thread):
 	def __init__(self, socket, address):
-        Thread.__init__(self)
-        self.sock = socket
-        self.addr = address
-        self.start()
+		Thread.__init__(self)
+		self.sock = socket
+		self.addr = address
+		self.start()
 
     	def run(self):
         	while 1:
