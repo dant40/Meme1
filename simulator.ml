@@ -201,22 +201,90 @@ let movIns (m:mach) (opers:operand list): unit =
     | (srcOp::destOp::_) ->  let result = (valueof m srcOp) in
                            begin match destOp with 
                             | Reg x -> m.regs.(rind x) <- result 
-                            | Ind1 (Lit x) -> Printf.printf "MATCHED IND1\n" 
-                            | Ind2 x -> Printf.printf "MATCHED IND2\n" 
-                            | Ind3 (Lit x ,r) -> Printf.printf "MATCHED IND3\n" 
+                            | Ind1 (Lit x ) ->  let addr = map_addr x in
+                                                let index = getIndex addr in 
+                                                let bytes =  (sbytes_of_int64 result) in
+                                                              for i = 0 to 7 do
+                                                                m.mem.(index + i) <- List.nth bytes i
+                                                              done
+                                             
+                            | Ind2 x ->  let addr = map_addr m.regs.(rind x) in
+                                          let index = getIndex addr in 
+                                          let bytes =  (sbytes_of_int64 result) in
+                                                        for i = 0 to 7 do
+                                                          m.mem.(index + i) <- List.nth bytes i
+                                                        done
+
+                            | Ind3(Lit x,r) -> let off = Int64.add x  m.regs.(rind r) in
+                                               let addr = map_addr off in
+                                                let index = getIndex addr in 
+                                                let bytes =  (sbytes_of_int64 result) in
+                                                              for i = 0 to 7 do
+                                                                m.mem.(index + i) <- List.nth bytes i
+                                                              done
                             | _ -> failwith "dest must be a register"
                            end
     | _ -> raise X86lite_segfault 
 
 
+let signOf (x:int64): bool = 
+  if x >= 0L then true
+  else false
+let setFlags (m:mach) (ftype:string) (result:int64) (dest:int64) (src:int64): unit =
+  match ftype with
+    | "add" -> let newFo = ((signOf src == signOf dest) && (signOf src != signOf result)) in
+               let newFs = signOf result in
+               let newFz = result == 0L in
+               let setFo = m.flags.fo <- newFo in 
+               let setFz = m.flags.fz <- newFs in
+               m.flags.fs <- newFz;
+    | "sub" -> let newFo = (((signOf src == signOf (Int64.neg dest)) && (signOf (Int64.neg src) != signOf result)) 
+                      || src == Int64.min_int) in
+               let newFs = signOf result in
+               let newFz = result == 0L in
+               let setFo = m.flags.fo <- newFo in 
+               let setFz = m.flags.fz <- newFs in
+               m.flags.fs <- newFz;
+    | "mul" -> let newFo = ((signOf src == signOf dest) && (signOf src != signOf result)) in
+               let setFo = m.flags.fo <- newFo in 
+               let setFz = m.flags.fz <- false in
+               m.flags.fs <- false;
+    | _ -> failwith "NYI"
 
 
-(*This need to set the condition flags too *) (* idk how the condition flag thing is gonna work *) (* Yea... worry about that last i guess*)
-(* Actually probably shouldnt be too hard. Machine has a flags thing and we can just check for overflow, zero, and postivie negative easily*)
-let domath (func: (int64 -> int64 -> int64)) (m:mach) (opers:operand list): unit =
+(*This handles interpretation of arithmatic operands, also works for logical operands*)
+let domath (ftype:string) (func: (int64 -> int64 -> int64)) (m:mach) (opers:operand list): unit =
   match opers with
-    | (srcOp::destOp::_) -> let result = func (valueof m destOp) (valueof m srcOp) in
+    | (srcOp::destOp::_) -> let destval = valueof m destOp in
+                            let srcval = valueof m srcOp in
+                            let result = func destval srcval  in
                             begin match destOp with 
+                            | Reg x -> Array.set m.regs (rind x) result
+                            | Ind1 (Lit x ) ->  let addr = map_addr x in
+                                                let index = getIndex addr in 
+                                                let bytes =  (sbytes_of_int64 result) in
+                                                              for i = 0 to 7 do
+                                                                m.mem.(index + i) <- List.nth bytes i
+                                                              done
+                                             
+                            | Ind2 x ->  let addr = map_addr m.regs.(rind x) in
+                                          let index = getIndex addr in 
+                                          let bytes =  (sbytes_of_int64 result) in
+                                                        for i = 0 to 7 do
+                                                          m.mem.(index + i) <- List.nth bytes i
+                                                        done
+
+                            | Ind3(Lit x,r) -> let off = Int64.add x  m.regs.(rind r) in
+                                               let addr = map_addr off in
+                                                let index = getIndex addr in 
+                                                let bytes =  (sbytes_of_int64 result) in
+                                                              for i = 0 to 7 do
+                                                                m.mem.(index + i) <- List.nth bytes i
+                                                              done
+                            | _ -> failwith "dest must be a register or addr"
+                            end 
+    | (srcOp::[]) -> let result = (func (valueof m srcOp) Int64.minus_one )  in
+                            begin match srcOp with 
                             | Reg x -> Array.set m.regs (rind x) result
                             | Ind1 (Lit x ) ->  let addr = map_addr x in
                                                 let index = getIndex addr in 
@@ -243,6 +311,70 @@ let domath (func: (int64 -> int64 -> int64)) (m:mach) (opers:operand list): unit
                             end 
     | _ -> raise X86lite_segfault 
 
+(*Since notq uses lognot which is int64 -> int64 , i need another thing*)
+let notIns  (m:mach) (opers:operand list): unit =
+  match opers with
+  | (srcOp::[]) -> let result = (Int64.lognot (valueof m srcOp) )  in
+                            begin match srcOp with 
+                            | Reg x -> Array.set m.regs (rind x) result
+                            | Ind1 (Lit x ) ->  let addr = map_addr x in
+                                                let index = getIndex addr in 
+                                                let bytes =  (sbytes_of_int64 result) in
+                                                              for i = 0 to 7 do
+                                                                m.mem.(index + i) <- List.nth bytes i
+                                                              done
+                                             
+                            | Ind2 x ->  let addr = map_addr m.regs.(rind x) in
+                                          let index = getIndex addr in 
+                                          let bytes =  (sbytes_of_int64 result) in
+                                                        for i = 0 to 7 do
+                                                          m.mem.(index + i) <- List.nth bytes i
+                                                        done
+
+                            | Ind3(Lit x,r) -> let off = Int64.add x  m.regs.(rind r) in
+                                               let addr = map_addr off in
+                                                let index = getIndex addr in 
+                                                let bytes =  (sbytes_of_int64 result) in
+                                                              for i = 0 to 7 do
+                                                                m.mem.(index + i) <- List.nth bytes i
+                                                              done
+                            | _ -> failwith "dest must be a register or addr"
+                            end 
+    | _ -> raise X86lite_segfault 
+
+(*This handles the bitshift operands, since their int64 functions have a different type  *)
+let doshift (func: (int64 -> int -> int64)) (m:mach) (opers:operand list): unit =
+  match opers with
+    | (srcOp::destOp::_) -> let result = func (valueof m destOp) (Int64.to_int(valueof m srcOp)) in
+                            begin match destOp with 
+                            | Reg x -> Array.set m.regs (rind x) result
+                            | Ind1 (Lit x ) ->  let addr = map_addr x in
+                                                let index = getIndex addr in 
+                                                let bytes =  (sbytes_of_int64 result) in
+                                                              for i = 0 to 7 do
+                                                                m.mem.(index + i) <- List.nth bytes i
+                                                              done
+                                             
+                            | Ind2 x ->  let addr = map_addr m.regs.(rind x) in
+                                          let index = getIndex addr in 
+                                          let bytes =  (sbytes_of_int64 result) in
+                                                        for i = 0 to 7 do
+                                                          m.mem.(index + i) <- List.nth bytes i
+                                                        done
+
+                            | Ind3(Lit x,r) -> let off = Int64.add x  m.regs.(rind r) in
+                                               let addr = map_addr off in
+                                                let index = getIndex addr in 
+                                                let bytes =  (sbytes_of_int64 result) in
+                                                              for i = 0 to 7 do
+                                                                m.mem.(index + i) <- List.nth bytes i
+                                                              done
+                            | _ -> failwith "dest must be a register or addr"
+                            end 
+
+(* let doPush (m:mach) (opers:operand list): unit =
+  match opers with
+   *)
 
 
 let step (m:mach) : unit =
@@ -250,16 +382,26 @@ let step (m:mach) : unit =
  let addr = map_addr byte in
  let index = getIndex addr in 
  let temp = m.regs.(rind Rip) <- Int64.add byte 8L in 
- (*  *)
- (*Wait  *)
  let instruct = Array.get m.mem index in
  match instruct with 
  | InsB0 x -> let opcode, operands = x in
               begin match opcode with 
               | Movq -> movIns m operands
-              | Addq -> domath (Int64.add) m operands
-              | Subq -> domath (Int64.sub) m operands
-              | Imulq -> domath (Int64.mul) m operands
+              | Addq -> domath "add" (Int64.add) m operands
+              | Subq -> domath "sub" (Int64.sub) m operands
+              | Imulq -> domath "mul" (Int64.mul) m operands
+              | Negq -> domath "neg" (Int64.mul ) m operands
+              | Decq -> domath  "dec" (Int64.add) m operands
+              | Incq -> domath  "inc" (Int64.sub) m operands
+              | Notq -> notIns m operands
+              | Andq -> domath "and" (Int64.logand) m operands
+              | Orq -> domath "or" (Int64.logor) m operands
+              | Xorq -> domath "xor" (Int64.logxor) m operands
+              | Shlq -> doshift (Int64.shift_left) m operands
+              | Shrq -> doshift (Int64.shift_right) m operands
+              | Sarq -> doshift (Int64.shift_right_logical) m operands
+              | Pushq -> ()
+              | Popq -> ()
               | _ -> failwith "NYI"
               end
  | _ -> raise X86lite_segfault
