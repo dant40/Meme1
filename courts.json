@@ -1,0 +1,52 @@
+{
+    "courts":[
+        {
+            "name": "test court 1",
+            "latitude": 40.74,
+            "longitude": -74.03,
+            "address": "123 test street",
+            "isIndoor": false,
+            "courtSize": 1,
+            "openTime": "7am",
+            "closeTime": "7pm",
+            "halfCourtHoopNumber": 2,
+            "fullCourtHoopNumber": 2,
+            "hoopRimType": "Single",
+            "hoopNetType": "Chain",
+            "hoopHeight": 10,
+            "hasLights": true
+        },
+        {
+            "name": "test court 2",
+            "latitude": 40.74,
+            "longitude": -74.03,
+            "address": "124 test street",
+            "isIndoor": true,
+            "courtSize": 2,
+            "openTime": "9am",
+            "closeTime": "7pm",
+            "halfCourtHoopNumber": 0,
+            "fullCourtHoopNumber": 2,
+            "hoopRimType": "Single",
+            "hoopNetType": "Net",
+            "hoopHeight": 10,
+            "hasLights": true
+        },
+        {
+            "name": "test court 3",
+            "latitude": 40.74,
+            "longitude": -74.03,
+            "address": "125 test street",
+            "isIndoor": false,
+            "courtSize": 0,
+            "openTime": "anytime",
+            "closeTime": "anytime",
+            "halfCourtHoopNumber": 4,
+            "fullCourtHoopNumber": 0,
+            "hoopRimType": "Double",
+            "hoopNetType": "None",
+            "hoopHeight": 9,
+            "hasLights": false
+        }
+    ]
+}
